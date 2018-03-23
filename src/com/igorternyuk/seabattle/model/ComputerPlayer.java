@@ -14,6 +14,7 @@ public class ComputerPlayer extends AbstractPlayer {
 
     public ComputerPlayer(final Game game) {
         super(game);
+        reset();
     }
 
     public void reset(){
@@ -28,7 +29,7 @@ public class ComputerPlayer extends AbstractPlayer {
             boolean isShipPlaced;
             do {
                 int randX = random.nextInt(Game.FIELD_SIZE), randY = random.nextInt(Game.FIELD_SIZE);
-                ShipDirection direction = random.nextBoolean() ? ShipDirection.HORIZONTAL : ShipDirection.HORIZONTAL;
+                ShipDirection direction = random.nextBoolean() ? ShipDirection.HORIZONTAL : ShipDirection.VERTICAL;
                 isShipPlaced = this.navy.tryToPlaceShipAt(randX, randY, direction);
             } while (!isShipPlaced);
         }
@@ -50,13 +51,13 @@ public class ComputerPlayer extends AbstractPlayer {
             }
 
             boolean hitTheTarget = this.game.getHumanPlayer().getNavy().hit(targetX, targetY);
+            this.shots.add(new Point(targetX, targetY));
             if(hitTheTarget){
                 if(!this.game.getHumanPlayer().getNavy().isAlive()){
                     this.game.setGameState(GameState.COMPUTER_WON);
                     break;
                 }
                 this.isTargetAcquired = true;
-                this.shots.add(new Point(targetX, targetY));
                 List<Point> neighbours = Game.getNeighboursVonNeumann(targetX, targetY);
                 this.nextShoots.addAll(neighbours.stream().filter(pos -> !this.shots.contains(pos))
                         .collect(Collectors.toList()));

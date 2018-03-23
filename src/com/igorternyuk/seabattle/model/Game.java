@@ -26,6 +26,10 @@ public class Game {
         this.gameState = GameState.HUMAN_SHIP_PLACEMENT;
     }
 
+    public GameState getGameState(){
+        return this.gameState;
+    }
+
     public void setGameState(final GameState gameState){
         this.gameState = gameState;
     }
@@ -41,19 +45,36 @@ public class Game {
     public void shootsHuman(final int x, final int y){
         if(this.gameState.equals(GameState.HUMAN_TO_PLAY)) {
             this.humanPlayer.shoot(x, y);
+            System.out.println("Trying to shoot");
         }
     }
 
     public void tryToPlaceHorizontalShip(final int x, final int y){
-        this.humanPlayer.getNavy().tryToPlaceShipAt(x, y, ShipDirection.HORIZONTAL);
+        if(this.gameState.equals(GameState.HUMAN_SHIP_PLACEMENT)) {
+            if(this.humanPlayer.getNavy().tryToPlaceShipAt(x, y, ShipDirection.HORIZONTAL)){
+                if(this.humanPlayer.getNavy().isFullyEquipped()){
+                    this.setGameState(GameState.HUMAN_TO_PLAY);
+                }
+            }
+        }
     }
 
     public void tryToPlaceVerticalShip(final int x, final int y){
-        this.humanPlayer.getNavy().tryToPlaceShipAt(x, y, ShipDirection.VERTICAL);
+        if(this.gameState.equals(GameState.HUMAN_SHIP_PLACEMENT)) {
+            if(this.humanPlayer.getNavy().tryToPlaceShipAt(x, y, ShipDirection.VERTICAL)){
+                if(this.humanPlayer.getNavy().isFullyEquipped()){
+                    this.setGameState(GameState.HUMAN_TO_PLAY);
+                }
+            }
+        }
     }
 
     public static boolean isValidPosition(final int x, final int y){
         return x >= 0 && x < FIELD_SIZE && y >= 0 && y < FIELD_SIZE;
+    }
+
+    public static boolean isValidPosition(final Point pos){
+        return isValidPosition(pos.x, pos.y);
     }
 
     public static List<Point> getNeighboursMoore(final Point pos){

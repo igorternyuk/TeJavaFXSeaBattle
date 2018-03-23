@@ -46,13 +46,15 @@ public class Navy {
 
     public boolean tryToPlaceShipAt(final int x, final int y, final ShipDirection direction){
         final Ship newShip = new Ship(x, y, shipPlacementOrder[currentShipIndex], direction);
-        boolean isCollision = this.ships.stream().anyMatch(ship -> ship.collides(newShip));
-        if(isCollision){
-            return false;
+        boolean isAllCellInFieldBounds = newShip.getCells().stream()
+                .allMatch(cell -> Game.isValidPosition(cell.getPosition()));
+        boolean isPositionOK = this.ships.stream().noneMatch(ship -> ship.collides(newShip));
+        if(isAllCellInFieldBounds && isPositionOK){
+            this.ships.add(newShip);
+            ++currentShipIndex;
+            return true;
         }
-        this.ships.add(newShip);
-        ++currentShipIndex;
-        return true;
+        return false;
     }
 
     public boolean isFullyEquipped(){
@@ -69,9 +71,10 @@ public class Navy {
     }
 
     public boolean hit(final int x, final int y){
-        boolean isTargetHit = this.ships.stream().anyMatch(ship -> hit(x, y));
+        boolean isTargetHit = false;
         for(final Ship ship: this.ships){
             if(ship.hit(x, y)){
+                isTargetHit = true;
                 if(!ship.isAlive()){
                     final ShipType shipType = ship.getType();
                     if(this.destroyedShips.containsKey(shipType)) {

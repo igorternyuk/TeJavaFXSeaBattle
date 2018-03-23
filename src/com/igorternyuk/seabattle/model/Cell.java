@@ -31,6 +31,10 @@ public class Cell {
         return this.alive;
     }
 
+    public boolean isDestroyed() {
+        return !this.alive;
+    }
+
     public boolean tryToHit(final int x, final int y){
         return tryToHit(new Point(x, y));
     }
