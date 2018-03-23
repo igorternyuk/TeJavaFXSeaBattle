@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
  * Created by igor on 23.03.18.
  */
 public class ComputerPlayer extends AbstractPlayer {
-    private Set<Point> nextShoots = new TreeSet<>();
+    private Set<Point> nextShoots = new HashSet<>();
     private boolean isTargetAcquired = false;
 
     public ComputerPlayer(final Game game) {
@@ -51,12 +51,17 @@ public class ComputerPlayer extends AbstractPlayer {
 
             boolean hitTheTarget = this.game.getHumanPlayer().getNavy().hit(targetX, targetY);
             if(hitTheTarget){
+                if(!this.game.getHumanPlayer().getNavy().isAlive()){
+                    this.game.setGameState(GameState.COMPUTER_WON);
+                    break;
+                }
                 this.isTargetAcquired = true;
                 this.shots.add(new Point(targetX, targetY));
                 List<Point> neighbours = Game.getNeighboursVonNeumann(targetX, targetY);
                 this.nextShoots.addAll(neighbours.stream().filter(pos -> !this.shots.contains(pos))
                         .collect(Collectors.toList()));
             } else {
+                this.game.setGameState(GameState.HUMAN_TO_PLAY);
                 break;
             }
         }

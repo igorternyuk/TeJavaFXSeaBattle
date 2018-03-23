@@ -13,10 +13,21 @@ public class Game {
     private static final int MAX_NEIGHBOUR_VON_NEUMANN_COUNT = 4;
     private final HumanPlayer humanPlayer;
     private final ComputerPlayer computerPlayer;
+    private GameState gameState = GameState.HUMAN_SHIP_PLACEMENT;
 
     public Game(){
         this.humanPlayer = new HumanPlayer(this);
         this.computerPlayer = new ComputerPlayer(this);
+    }
+
+    public void prepareNewGame(){
+        this.humanPlayer.reset();
+        this.computerPlayer.reset();
+        this.gameState = GameState.HUMAN_SHIP_PLACEMENT;
+    }
+
+    public void setGameState(final GameState gameState){
+        this.gameState = gameState;
     }
 
     public HumanPlayer getHumanPlayer(){
@@ -25,6 +36,20 @@ public class Game {
 
     public ComputerPlayer getComputerPlayer(){
         return this.computerPlayer;
+    }
+
+    public void shootsHuman(final int x, final int y){
+        if(this.gameState.equals(GameState.HUMAN_TO_PLAY)) {
+            this.humanPlayer.shoot(x, y);
+        }
+    }
+
+    public void tryToPlaceHorizontalShip(final int x, final int y){
+        this.humanPlayer.getNavy().tryToPlaceShipAt(x, y, ShipDirection.HORIZONTAL);
+    }
+
+    public void tryToPlaceVerticalShip(final int x, final int y){
+        this.humanPlayer.getNavy().tryToPlaceShipAt(x, y, ShipDirection.VERTICAL);
     }
 
     public static boolean isValidPosition(final int x, final int y){

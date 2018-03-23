@@ -44,6 +44,10 @@ public class Ship {
         return Collections.unmodifiableList(this.cells);
     }
 
+    public boolean isAlive(){
+        return this.cells.stream().anyMatch(Cell::isAlive);
+    }
+
     public boolean isVertical(){
         return this.direction.equals(ShipDirection.VERTICAL);
     }

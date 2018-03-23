@@ -22,6 +22,10 @@ public abstract class AbstractPlayer {
         return this.navy;
     }
 
+    public List<Point> getShots(){
+        return Collections.unmodifiableList(this.shots);
+    }
+
     public abstract void reset();
 
     public boolean isInPlay(){

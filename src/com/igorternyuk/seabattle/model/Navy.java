@@ -8,24 +8,29 @@ import java.util.*;
 public class Navy {
     private static final int SHIPS_TOTAL = 10;
     private static final int CELLS_TOTAL = 20;
-    private static final Map<ShipType, Integer> shipsPattern = createShipsPattern();
     private final List<Ship> ships = new ArrayList<>();
+    private final Map<ShipType, Integer> destroyedShips = new HashMap<>();
     private final ShipType[] shipPlacementOrder = { ShipType.FOUR_DECKED, ShipType.THREE_DECKED, ShipType.THREE_DECKED,
             ShipType.TWO_DECKED, ShipType.TWO_DECKED, ShipType.TWO_DECKED, ShipType.ONE_DECKED, ShipType.ONE_DECKED,
             ShipType.ONE_DECKED, ShipType.ONE_DECKED};
     private int currentShipIndex = 0;
 
-    private static Map<ShipType, Integer> createShipsPattern() {
-        Map<ShipType, Integer> pattern = new HashMap<>();
-        pattern.put(ShipType.FOUR_DECKED, 1);
-        pattern.put(ShipType.THREE_DECKED, 2);
-        pattern.put(ShipType.TWO_DECKED, 3);
-        pattern.put(ShipType.ONE_DECKED, 4);
-        return pattern;
+    public Navy(){
+        resetDestroyedShipMap();
+    }
+
+    private void resetDestroyedShipMap(){
+        for (final ShipType shipType : ShipType.values()) {
+            this.destroyedShips.put(shipType, 0);
+        }
     }
 
     public List<Ship> getShips(){
         return Collections.unmodifiableList(this.ships);
+    }
+
+    public int getDestoyedShipsCount(final ShipType shipType){
+        return this.destroyedShips.get(shipType);
     }
 
     public boolean isAlive(){
@@ -33,8 +38,10 @@ public class Navy {
     }
 
     public void reset(){
-        currentShipIndex = 0;
+        this.currentShipIndex = 0;
         this.ships.clear();
+        this.destroyedShips.clear();
+        resetDestroyedShipMap();
     }
 
     public boolean tryToPlaceShipAt(final int x, final int y, final ShipDirection direction){
@@ -62,6 +69,19 @@ public class Navy {
     }
 
     public boolean hit(final int x, final int y){
-        return this.ships.stream().anyMatch(ship -> hit(x, y));
+        boolean isTargetHit = this.ships.stream().anyMatch(ship -> hit(x, y));
+        for(final Ship ship: this.ships){
+            if(ship.hit(x, y)){
+                if(!ship.isAlive()){
+                    final ShipType shipType = ship.getType();
+                    if(this.destroyedShips.containsKey(shipType)) {
+                        this.destroyedShips.put(shipType, this.destroyedShips.get(shipType) + 1);
+                    } else {
+                        this.destroyedShips.put(shipType, 1);
+                    }
+                }
+            }
+        }
+        return isTargetHit;
     }
 }
