@@ -76,5 +76,6 @@ public class Controller implements Initializable{
         Renderer.renderHumanShips(this.gc, this.game);
         Renderer.renderComputerShips(this.gc, this.game);
         Renderer.renderGameStatus(this.gc, Color.RED, this.game);
+        Renderer.renderPlayersHealth(this.gc, this.game);
     }
 }

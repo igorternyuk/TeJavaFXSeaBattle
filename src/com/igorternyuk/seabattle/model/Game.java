@@ -30,7 +30,7 @@ public class Game {
         return this.gameState;
     }
 
-    public void setGameState(final GameState gameState){
+    void setGameState(final GameState gameState) {
         this.gameState = gameState;
     }
 
@@ -44,8 +44,9 @@ public class Game {
 
     public void shootsHuman(final int x, final int y){
         if(this.gameState.equals(GameState.HUMAN_TO_PLAY)) {
-            this.humanPlayer.shoot(x, y);
-            System.out.println("Trying to shoot");
+            if (isValidPosition(x, y)) {
+                this.humanPlayer.shoot(x, y);
+            }
         }
     }
 
@@ -73,11 +74,11 @@ public class Game {
         return x >= 0 && x < FIELD_SIZE && y >= 0 && y < FIELD_SIZE;
     }
 
-    public static boolean isValidPosition(final Point pos){
+    static boolean isValidPosition(final Point pos) {
         return isValidPosition(pos.x, pos.y);
     }
 
-    public static List<Point> getNeighboursMoore(final Point pos){
+    static List<Point> getNeighboursMoore(final Point pos) {
         return Game.getNeighboursMoore(pos.x, pos.y);
     }
 
@@ -100,7 +101,7 @@ public class Game {
         return Game.getNeighboursVonNeumann(pos.x, pos.y);
     }
 
-    public static List<Point> getNeighboursVonNeumann(final int x, final int y){
+    static List<Point> getNeighboursVonNeumann(final int x, final int y) {
         List<Point> neighbours = new ArrayList<>(MAX_NEIGHBOUR_VON_NEUMANN_COUNT);
         final int[] dx = { 1, 0, -1 , 0 };
         final int[] dy = { 0, 1, 0, -1 };

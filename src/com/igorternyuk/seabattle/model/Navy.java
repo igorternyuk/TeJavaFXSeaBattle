@@ -9,19 +9,20 @@ public class Navy {
     private static final int SHIPS_TOTAL = 10;
     private static final int CELLS_TOTAL = 20;
     private final List<Ship> ships = new ArrayList<>();
-    private final Map<ShipType, Integer> destroyedShips = new HashMap<>();
+    private final Map<ShipType, Integer> destroyedShipsMap = new HashMap<>();
+    private final List<Ship> destroyedShips = new ArrayList<>(SHIPS_TOTAL);
     private final ShipType[] shipPlacementOrder = { ShipType.FOUR_DECKED, ShipType.THREE_DECKED, ShipType.THREE_DECKED,
             ShipType.TWO_DECKED, ShipType.TWO_DECKED, ShipType.TWO_DECKED, ShipType.ONE_DECKED, ShipType.ONE_DECKED,
             ShipType.ONE_DECKED, ShipType.ONE_DECKED};
     private int currentShipIndex = 0;
 
-    public Navy(){
+    Navy() {
         resetDestroyedShipMap();
     }
 
     private void resetDestroyedShipMap(){
         for (final ShipType shipType : ShipType.values()) {
-            this.destroyedShips.put(shipType, 0);
+            this.destroyedShipsMap.put(shipType, 0);
         }
     }
 
@@ -29,22 +30,23 @@ public class Navy {
         return Collections.unmodifiableList(this.ships);
     }
 
-    public int getDestoyedShipsCount(final ShipType shipType){
-        return this.destroyedShips.get(shipType);
+    List<Ship> getDestoyedShips() {
+        return Collections.unmodifiableList(this.destroyedShips);
     }
 
-    public boolean isAlive(){
+    boolean isAlive() {
         return calculateHealthPercentage() > 0;
     }
 
-    public void reset(){
+    void reset() {
         this.currentShipIndex = 0;
         this.ships.clear();
+        this.destroyedShipsMap.clear();
         this.destroyedShips.clear();
         resetDestroyedShipMap();
     }
 
-    public boolean tryToPlaceShipAt(final int x, final int y, final ShipDirection direction){
+    boolean tryToPlaceShipAt(final int x, final int y, final ShipDirection direction) {
         final Ship newShip = new Ship(x, y, shipPlacementOrder[currentShipIndex], direction);
         boolean isAllCellInFieldBounds = newShip.getCells().stream()
                 .allMatch(cell -> Game.isValidPosition(cell.getPosition()));
@@ -57,7 +59,7 @@ public class Navy {
         return false;
     }
 
-    public boolean isFullyEquipped(){
+    boolean isFullyEquipped() {
         return currentShipIndex >= SHIPS_TOTAL;
     }
 
@@ -70,17 +72,18 @@ public class Navy {
         return totalNumberOfAliveCells * 100.f / CELLS_TOTAL;
     }
 
-    public boolean hit(final int x, final int y){
+    boolean hit(final int x, final int y) {
         boolean isTargetHit = false;
         for(final Ship ship: this.ships){
             if(ship.hit(x, y)){
                 isTargetHit = true;
                 if(!ship.isAlive()){
+                    this.destroyedShips.add(ship);
                     final ShipType shipType = ship.getType();
-                    if(this.destroyedShips.containsKey(shipType)) {
-                        this.destroyedShips.put(shipType, this.destroyedShips.get(shipType) + 1);
+                    if (this.destroyedShipsMap.containsKey(shipType)) {
+                        this.destroyedShipsMap.put(shipType, this.destroyedShipsMap.get(shipType) + 1);
                     } else {
-                        this.destroyedShips.put(shipType, 1);
+                        this.destroyedShipsMap.put(shipType, 1);
                     }
                 }
             }

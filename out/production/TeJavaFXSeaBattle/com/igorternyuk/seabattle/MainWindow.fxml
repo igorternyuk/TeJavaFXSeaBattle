@@ -20,12 +20,12 @@
         </MenuBar>
     </top>
     <center>
-        <Canvas fx:id="canvas" width="800" height="600" />
+        <Canvas fx:id="canvas" width="800" height="540" />
     </center>
     <bottom>
         <HBox alignment="CENTER" spacing="5">
             <Button fx:id="btnNewGame" text="New game" onAction="#onBtnNewGameClicked" />
-            <Button fx:id="btnExit" text="New game" onAction="#onBtnExitClicked" />
+            <Button fx:id="btnExit" text="Exit" onAction="#onBtnExitClicked" />
         </HBox>
     </bottom>
 </BorderPane>

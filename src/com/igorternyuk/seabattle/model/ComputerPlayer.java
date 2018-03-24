@@ -1,8 +1,9 @@
 package com.igorternyuk.seabattle.model;
 
 import java.awt.*;
-import java.util.*;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -12,7 +13,7 @@ public class ComputerPlayer extends AbstractPlayer {
     private Set<Point> nextShoots = new HashSet<>();
     private boolean isTargetAcquired = false;
 
-    public ComputerPlayer(final Game game) {
+    ComputerPlayer(final Game game) {
         super(game);
         reset();
     }
@@ -35,7 +36,7 @@ public class ComputerPlayer extends AbstractPlayer {
         }
     }
 
-    public void shoot(){
+    void shoot() {
         for(;;){
             int targetX, targetY;
             if(this.isTargetAcquired && !this.nextShoots.isEmpty()){
@@ -48,19 +49,38 @@ public class ComputerPlayer extends AbstractPlayer {
                 this.isTargetAcquired = false;
                 targetX = this.random.nextInt(Game.FIELD_SIZE);
                 targetY = this.random.nextInt(Game.FIELD_SIZE);
+                boolean isTargetOK = false;
+                while (!isTargetOK) {
+                    targetX = this.random.nextInt(Game.FIELD_SIZE);
+                    targetY = this.random.nextInt(Game.FIELD_SIZE);
+                    final Point target = new Point(targetX, targetY);
+                    isTargetOK = this.game.getHumanPlayer().getDestroyedShips().stream().noneMatch(ship -> {
+                        List<Cell> cells = ship.getCells();
+                        return cells.stream().noneMatch(cell -> {
+                            List<Point> neighbours = Game.getNeighboursMoore(cell.getPosition());
+                            return neighbours.stream().noneMatch(pos -> pos.equals(target));
+                        });
+                    });
+                }
             }
-
+            int humanDestroyedShipsCountBefore = this.game.getHumanPlayer().getDestroyedShips().size();
             boolean hitTheTarget = this.game.getHumanPlayer().getNavy().hit(targetX, targetY);
             this.shots.add(new Point(targetX, targetY));
             if(hitTheTarget){
-                if(!this.game.getHumanPlayer().getNavy().isAlive()){
+                if (!this.game.getHumanPlayer().isInPlay()) {
                     this.game.setGameState(GameState.COMPUTER_WON);
                     break;
                 }
-                this.isTargetAcquired = true;
-                List<Point> neighbours = Game.getNeighboursVonNeumann(targetX, targetY);
-                this.nextShoots.addAll(neighbours.stream().filter(pos -> !this.shots.contains(pos))
-                        .collect(Collectors.toList()));
+                int humanDestroyedShipsCountAfter = this.game.getHumanPlayer().getDestroyedShips().size();
+                if (humanDestroyedShipsCountBefore == humanDestroyedShipsCountAfter) {
+                    this.isTargetAcquired = true;
+                    List<Point> neighbours = Game.getNeighboursVonNeumann(targetX, targetY);
+                    this.nextShoots.addAll(neighbours.stream().filter(pos -> !this.shots.contains(pos))
+                            .collect(Collectors.toList()));
+                } else if (humanDestroyedShipsCountAfter > humanDestroyedShipsCountBefore) {
+                    this.nextShoots.clear();
+                    this.isTargetAcquired = false;
+                }
             } else {
                 this.game.setGameState(GameState.HUMAN_TO_PLAY);
                 break;
